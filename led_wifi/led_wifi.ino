@@ -1,17 +1,24 @@
 #include <ESP8266WiFi.h>
 
-const char* ssid = "Milka"; // Nome da Rede
+// Nome da Rede
+const char* ssid = "Milka"; 
 
-const char* password = "SenhaDaRede"; //Password da rede
+//Password da rede
+const char* password = "SenhaDaRede";
 
-int ledPin = 5; // GPIO5 do ESP8266 e D1 do NodeMCU
+// GPIO5 do ESP8266 e D1 do NodeMCU
+int ledPin = 5;
 
 //DEFINIÇÃO DE IP FIXO PARA O NODEMCU
-IPAddress ip(192,168,0,175); //COLOQUE UMA FAIXA DE IP DISPONÍVEL DO SEU ROTEADOR. EX: 192.168.1.110 **** ISSO VARIA, NO MEU CASO É: 192.168.0.175
-IPAddress gateway(192,168,0,1); //GATEWAY DE CONEXÃO (ALTERE PARA O GATEWAY DO SEU ROTEADOR)
-IPAddress subnet(255,255,255,0); //MASCARA DE REDE
+//COLOQUE UMA FAIXA DE IP DISPONÍVEL DO SEU ROTEADOR. EX: 192.168.1.110 **** ISSO VARIA, NO MEU CASO É: 192.168.0.175
+IPAddress ip(192,168,0,175); 
+//GATEWAY DE CONEXÃO (ALTERE PARA O GATEWAY DO SEU ROTEADOR)
+IPAddress gateway(192,168,0,1);
+//MASCARA DE REDE
+IPAddress subnet(255,255,255,0);
 
-WiFiServer server(80); // Porta 80
+// Porta 80
+WiFiServer server(80);
 
 void setup() {
 
@@ -19,32 +26,42 @@ void setup() {
 
   delay(10);
 
-  pinMode(ledPin, OUTPUT); // Define o D7 como saída
+  // Define o D7 como saída
+  pinMode(ledPin, OUTPUT);
 
-  digitalWrite(ledPin, LOW); // O LED começa desligado
+  // O LED começa desligado
+  digitalWrite(ledPin, LOW);
      
   // Comunicação com a rede WiFi
+  
+  // Mode de estação 
+  WiFi.mode(WIFI_STA);
 
-  WiFi.begin(ssid, password); // Inicia a ligação a rede
+  // Inicia a ligação a rede
+  WiFi.begin(ssid, password);
 
-  WiFi.config(ip, gateway, subnet); //PASSA OS PARÂMETROS PARA A FUNÇÃO QUE VAI SETAR O IP FIXO NO NODEMCU
+  //PASSA OS PARÂMETROS PARA A FUNÇÃO QUE VAI SETAR O IP FIXO NO NODEMCU
+  WiFi.config(ip, gateway, subnet);
   
   while (WiFi.status() != WL_CONNECTED) {
 
     delay(500);
-
-    Serial.print("."); // Enquanto a ligação não for efectuada com sucesso é apresentado no monitor série uma sucessão de “.”
+    
+    // Enquanto a ligação não for efectuada com sucesso é apresentado no monitor série uma sucessão de “.”
+    Serial.print(".");
   }
 
   Serial.println("");
 
-  Serial.println("WiFi connected"); // Se a ligação é efectuada com sucesso apresenta esta mensagem no monitor série
-
+  // Se a ligação é efectuada com sucesso apresenta esta mensagem no monitor série
+  Serial.println("WiFi connected");
+  
   // Servidor
-
-  server.begin(); // Comunicação com o servidor
-
-  Serial.println("Servidor iniciado"); //é apresentado no monitor série que o  servidor foi iniciado
+  // Comunicação com o servidor
+  server.begin();
+  
+  //é apresentado no monitor série que o  servidor foi iniciado
+  Serial.println("Servidor iniciado");
   
 }
 
@@ -65,16 +82,18 @@ void loop() {
   // Verificação se o cliente está conectado
   
   WiFiClient client = server.available();
-  
-  if (!client) { // Verifica se o cliente está conectado ao servidor, executa este ciclo até estar conectado
+
+  // Verifica se o cliente está conectado ao servidor, executa este ciclo até estar conectado
+  if (!client) {
   
     return;
   
   }
   
   // Espera até o cliente enviar dados
-  
-  Serial.println("novo cliente"); //Apresenta esta mensagem quando o cliente se liga ao servidor
+
+  //Apresenta esta mensagem quando o cliente se liga ao servidor
+  Serial.println("novo cliente");
   
   while(!client.available()){
   
@@ -96,7 +115,8 @@ void loop() {
 
   if (request.indexOf("/LED=ON") != -1)  {
 
-    digitalWrite(ledPin, HIGH); // Se o pedido no LedPin for LED=ON, acende o LED
+    // Se o pedido no LedPin for LED=ON, acende o LED
+    digitalWrite(ledPin, HIGH);
 
     value = HIGH;
 
@@ -104,7 +124,8 @@ void loop() {
 
   if (request.indexOf("/LED=OFF") != -1)  {
 
-    digitalWrite(ledPin, LOW); // Se o pedido no LedPin for LED=OFF, apaga o LED
+    // Se o pedido no LedPin for LED=OFF, apaga o LED
+    digitalWrite(ledPin, LOW);
 
     value = LOW;
 
@@ -126,27 +147,32 @@ void loop() {
 
   client.print("Estado do LED: ");
 
-  if(value == HIGH) { // Se está ligado apresenta “on”
+  // Se está ligado apresenta “on”
+  if(value == HIGH) {
 
     client.print("On");
 
   } else {
 
-    client.print("Off");// Se está desligado apresenta “Off”
+    // Se está desligado apresenta “Off”
+    client.print("Off");
 
   }
 
   client.println("<br><br>");
 
-  client.println("<a href=\"/LED=ON\"\"><button>Turn On </button></a>");// Ligar o LED corresponde Turn On
-  
-  client.println("<a href=\"/LED=OFF\"\"><button>Turn Off </button></a><br />");  // Desligar o LED corresponde Turn Off
+  // Ligar o LED corresponde Turn On
+  client.println("<a href=\"/LED=ON\"\"><button>Turn On </button></a>");
+
+  // Desligar o LED corresponde Turn Off
+  client.println("<a href=\"/LED=OFF\"\"><button>Turn Off </button></a><br />");
   
   client.println("</html>");
   
   delay(1);
-  
-  Serial.println("Cliente desconectado"); // Depois do cliente efectuar o pedido apresenta esta mensagem no monitor série
+
+  // Depois do cliente efectuar o pedido apresenta esta mensagem no monitor série
+  Serial.println("Cliente desconectado");
   
   Serial.println("");
   
